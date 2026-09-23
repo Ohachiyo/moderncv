@@ -219,11 +219,9 @@
 \DeclareOption{moderncvbodyv}{\@moderncvbodyifalse\@moderncvbodyiifalse\@moderncvbodyiiifalse\@moderncvbodyivfalse\@moderncvbodyvtrue}
 
 % If option `circle` is specified, use circles instead of small rectangles for rating skills
-% If option `halfcircle` is specified, allows for half-filled circles
+% This option also allows for half-filled circles
 \@initializeif{\if@cvskillcircle}\@cvskillcirclefalse
-\@initializeif{\if@cvskillhalfcircle}\@cvskillhalfcirclefalse
 \DeclareOption{circle}{\@cvskillcircletrue}
-\DeclareOption{halfcircle}{\@cvskillhalfcircletrue}
 
 \DeclareOption*{}% avoid choking on unknown options
 \ExecuteOptions{moderncvbodyi}
@@ -240,14 +238,11 @@
 % %-------------------------------------------------------------------------------
 % %                \cvskill command
 % %-------------------------------------------------------------------------------
-% The code for the Skilllevel illustration with the little boxes.
+% The code for the Skilllevel illustration with the little boxes (or circles).
 % This is idea stolen from the limecv package, see https://github.com/opieters/limecv.git
 
 \@initializelength{\cvSkill@ShapeSize}
 \if@cvskillcircle%
-    \setlength{\cvSkill@ShapeSize}{.8ex}%
-    \def\cvSkill@Shape#1{\tikz\filldraw[#1] (0, 0) circle (\cvSkill@ShapeSize);}
-\else\if@cvskillhalfcircle%
 	\setlength{\cvSkill@ShapeSize}{.8ex}%
 	\newcommand*\cvSkill@FullCircle[1][\cvSkill@ShapeSize]{%
 		\tikz\filldraw[skillmatrixfullcolor] (0,0) circle (#1);%
@@ -264,20 +259,21 @@
 \else
     \setlength{\cvSkill@ShapeSize}{1.2ex}
     \def\cvSkill@Shape#1{\tikz\filldraw[#1] (0, 0) rectangle (\cvSkill@ShapeSize, \cvSkill@ShapeSize);}
-\fi\fi
+\fi
 
 \DeclareDocumentCommand{\cvskill}{m}{%
 %   Illustrate skill level with little colored boxes.
 %   By default five skill levels are predefined.
+%   Option "circle" replaces the boxes by circles
 %
 %   Input:
 %       integer between 0 and 5
 %   Example usage:
-%       \cvskill{3}
-%   Option "circle" replaces the boxes by circles
-%   Option "halfcircle" allows for half-integer values for half-filled circles
+%       \cvskill{3} gives 3 filled boxes or circles and 2 empty
+%       \cvskill{3.5} gives 3 and a half filled circles and 1 and a half empty (only with option "circle")
+
 	\begingroup
-	\if@cvskillhalfcircle%
+	\if@cvskillcircle%
 		\pgfmathtruncatemacro{\full}{floor(#1)}% number of full circles
 		\pgfmathparse{(#1-\full) > 0.01 ? 1 : 0}%
 		\let\half\pgfmathresult% number of half circles
@@ -294,7 +290,7 @@
 				{\cvSkill@EmptyCircle\,}%
 		\fi%
 	\else
-		% Only full shapes
+		% Only full boxes
 		\newcount\my@repeat@count
 		\my@repeat@count=\z@
 		\@whilenum\my@repeat@count<#1\do{%
